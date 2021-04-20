@@ -540,7 +540,7 @@ Proto bylo nutné navrhnout lepší způsob.
 \par Dalším krokem je výpočet ohodnocení jednotlivých důležitých hlasování - těch která mají zásadní vliv na další existenci návrhů zákona. Tato funkce je jedna z nejpodstatnějších částí aplikace, jelikož je důležité uživateli hned zpočátku předložit v kalkulačce ty nejzajímavější možnosti. Samotný kód realizující tuto operaci se nachází v metodě \texttt{calculateHlasovaniRatings} třídy \texttt{DbManager} zajišťující práci s databází pro import dat, umístěné v souboru \texttt{volebni\_kalkulacka.dataImport.Logic.DbManager.py}. 
 \par Nejdříve potřebujeme získat všechna důležitá hlasování za poslední dvě volební období. K tomuto účelu využívám SQL dotaz propojující tabulku \texttt{hl\_hlasovani} s tabulkou \texttt{hist}, kde hledáme pouze hlasování spadající do orgánů značících poslední 2 volební období:
 
-\begin{verbatim}
+\begin{lstlisting}[language=SQL, caption={SQL dotaz na všechna podstatná hlasování za poslední 2 volební období}, label=code:sql-dve-obdobi]
 SELECT * 
 FROM 
     psp_data_hl_hlasovani as hh
@@ -562,10 +562,10 @@ WHERE
             organ_id_organ is null
             and id_typ_organu = 11 --poslanecka snemovna
     )
-\end{verbatim}
+\end{lstlisting}
 
-Následně již v pythonu provedeme nad získanými daty cyklus, kdy pro každé z hlasování pokládáme další dotaz do databáze. Tentokrát hledáme dvojici (zkratka, vysledek), kde zkratka je zkratka strany a vysledek je hlasovani poslance. Jedna dvojice za každého poslance zúčastněného v konkrétním hlasování. \todo{prostor pro rozsireni}\\
-\begin{verbatim}
+Následně již v pythonu provedeme nad získanými daty cyklus, kdy pro každé z hlasování pokládáme další dotaz do databáze. Tentokrát hledáme dvojici (zkratka, vysledek), kde zkratka je zkratka strany a vysledek je hlasováni poslance. Jedna dvojice za každého poslance zúčastněného v konkrétním hlasování. \todo{prostor pro rozsireni}\\
+\begin{lstlisting}[language=SQL, caption={SQL dotaz na získání dvojic zkratka, výsledek pro zadané hlasování}, label=code:sql-zkratka-vysledek]
 SELECT 
     zkratka,vysledek
 FROM 
@@ -587,13 +587,13 @@ WHERE
     AND z.cl_funkce = 0 --clenstvi
     AND o.organ_id_organ = {hlasovani['id_organ']} --ID election period 
     AND o.id_typ_organu = 1 --Klub
-    AND ( --either member ship is active (null) 
+    AND ( --either membership is active (null) 
         --or membership ended together with election period
         TO_DATE(z.do_o, 'YYYY-MM-DD') = TO_DATE(o.do_organ,'DD.MM.YYYY')
         OR 
         z.do_o IS null
-        )
-\end{verbatim}
+    )
+\end{lstlisting}
 
 Výsledek databázového dotazu je načten do knihovny Pandas, což je rychlý, výkonný, flexibilní a jednoduše ovladatelný open-source nástroj pro manipulaci s daty a jejich analýzu\cite{pandas}. Zde je opět cyklus, v tomto případě pro každou ze zúčastněných stran v hlasování. Výpočet ohodnocení hlasování se dá popsat sumou
 \begin{equation}
@@ -620,15 +620,17 @@ U každého hlasování může uživatel sám hlasovat. K tomuto účelu slouž�
 
 \par Své výsledky si uživatel může zobrazit ve svém uživatelském profilu viz obrázek \ref{aplikace-kalkulacka}. Jelikož uživatel může hlasovat napříč několika volebními obdobími, byly výsledky rozděleny podle toho kam patří. Uživatel tedy má jeden výsledek pro každé období zvlášť. 
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{obrazky-figures/aplikace-kalkulacka.png}
     \caption{Zobrazení výsledků kalkulačky v uživatelském profilu}
     \label{fig:aplikace-kalkulacka}
 \end{figure}
 
-\par Vyhodnocení shod probíhá v cyklu pro každé období zvlášť. Pro shodu s poslanci je použit SQL dotaz, kde je nejprve vyhledán celkový počet poslanců ve stranách a následně je přes zkratky stran propojen s druhým dotazem na hlasování každého poslance ve všech hlasováních v tomto volebním období, kde hlasoval uživatel. Počet shodných voleb s uživatelem je následně vydělen celkovým počtem hlasování uživatele v tomto období. Výsledek operace je tedy seznam trojic \texttt{procento\_shody}, \texttt{poslanec}, \texttt{zkratka\_strany}, který se vrací do kalkulačky.
-\begin{verbatim}
+\par Vyhodnocení shod probíhá v cyklu pro všechna období. Pro shodu s poslanci je použit SQL dotaz, kteý nejprve vyhledá všechny dvojice \texttt{matches}, \texttt{id\_poslanec}, kde id\_poslanec je unikátní identifikátor poslance a sloupeček matches uchovává počet jeho shodných hlasování s uživatelem. Tyto informace jsou poté ve druhém databázovém dotazu spojeny do jedné tabulky spolu s daty o jednotlivých poslancích a jejich zařazení ve stranách v zadaném volebním období. Výsledkem je pole trojic \texttt{match\_ratio}, \texttt{id\_poslanec}, \texttt{zkratka}, kde match\_ratio je poměr shod poslance s uživatelem a zkratka je zkratka jeho strany, který je poté zobrazen v kalkulačce.
+
+\begin{lstlisting}[language=SQL, caption={SQL dotaz na vyhledání shod uživatele s poslanci}, label=code:sql-shoda-poslanci]
+
 DROP TABLE IF EXISTS t1;
 CREATE TEMP TABLE t1 AS   
     SELECT count(*) AS matches, id_poslanec 
@@ -636,10 +638,9 @@ CREATE TEMP TABLE t1 AS
     WHERE (id_hlasovani, REPLACE(REPLACE(vysledek, 'N', 'B'),'C', 'K')) IN %s
     GROUP BY id_poslanec 
     ORDER BY matches DESC;
-
-
-SELECT (cast(t1.matches as decimal(7,2))/%s)*100 AS match_ratio, t1.id_poslanec, o.zkratka, 
-    os.pred, os.jmeno, os.prijmeni, os.za
+    
+SELECT (cast(t1.matches as decimal(7,2))/%s)*100 AS match_ratio, 
+    t1.id_poslanec, o.zkratka, os.pred, os.jmeno, os.prijmeni, os.za
 FROM t1
     INNER JOIN psp_data_poslanec AS p
     ON p.id_poslanec = t1.id_poslanec
@@ -652,19 +653,80 @@ FROM t1
 
     INNER JOIN psp_data_organy as o
     ON z.id_of = o.id_organ
-
 WHERE z.cl_funkce = 0
     AND o.organ_id_organ = {period_id}
     AND o.id_typ_organu = 1
     AND (
-		TO_DATE(z.do_o, 'YYYY-MM-DD') = TO_DATE(o.do_organ,'DD.MM.YYYY')
-		OR 
+        TO_DATE(z.do_o, 'YYYY-MM-DD') = TO_DATE(o.do_organ,'DD.MM.YYYY')
+        OR 
         z.do_o IS null
-		)
-\end{verbatim}
+    )
+\end{lstlisting}
+
+\par Shody se stranami jsou počítány obdobně. Nejprve jsou získány počty poslanců ve všech stranách v procházeném volebním období. Dále počet hlasů shodných s uživatelem pro každou stranu. V posledním kroku se tyto dvě informace spojí a na výstupu je opět pole, tentokráte dvojic \texttt{match\_ration}, \texttt{zkratka}, kde match\_ration je procentuálně vyjádřena shoda uživatelských voleb a průměrné shody na jednoho poslance ve straně.
+
+\begin{lstlisting}[language=SQL, caption={SQL dotaz na vyhledání shod uživatele se stranami}, label=code:sql-shoda-strany]
+--get members count in party
+DROP TABLE IF EXISTS tP1;
+CREATE TEMP TABLE tP1 AS
+    SELECT 
+        COUNT(*) AS members_count, o.zkratka FROM psp_data_osoby AS os
+        INNER JOIN psp_data_zarazeni AS z 
+        ON os.id_osoba = z.id_osoba
+
+        INNER JOIN psp_data_organy AS o
+        ON z.id_of = o.id_organ
+    WHERE 
+        z.cl_funkce = 0
+        and o.organ_id_organ = {period_id}
+        and o.id_typ_organu = 1
+        and (
+            TO_DATE(z.do_o, 'YYYY-MM-DD') = TO_DATE(o.do_organ,'DD.MM.YYYY')
+            OR 
+            z.do_o IS null
+        )
+    GROUP BY o.zkratka;
+
+DROP TABLE IF EXISTS tP2;
+CREATE TEMP TABLE tP2 AS
+    SELECT 
+        count(*) AS party_total_matches, 
+        o.zkratka FROM psp_data_hl_poslanec as hlp
+        
+        INNER JOIN psp_data_poslanec AS p
+        ON p.id_poslanec = hlp.id_poslanec
+
+        INNER JOIN psp_data_osoby AS os
+        ON p.id_poslanec = os.id_osoba
+
+        INNER JOIN psp_data_zarazeni AS z 
+        ON p.id_osoba = z.id_osoba
+
+        INNER JOIN psp_data_organy as o
+        ON z.id_of = o.id_organ
+
+    --need to replace characters because they use multiple with same meaning
+    WHERE 
+        (id_hlasovani, REPLACE(REPLACE(vysledek, 'N', 'B'),'C', 'K')) IN %s
+        and z.cl_funkce = 0
+        and o.organ_id_organ = {period_id}
+        and o.id_typ_organu = 1
+    GROUP BY o.zkratka;
+
+SELECT 
+    ((CAST(tP2.party_total_matches as decimal(7,2))/{answers_count})
+    /tP1.members_count)*100 AS match_ratio, tP1.zkratka 
+FROM tP2
+    INNER JOIN tP1
+    ON tP1.zkratka = tP2.zkratka
+ORDER 
+    BY match_ratio DESC
+\end{lstlisting}
 
 \chapter{Testování}
 \label{chap:testovani}
+
+
 
 
 \chapter{Závěr (1 strana)}
