@@ -3,15 +3,7 @@
 \chapter{Úvod}
 Každé čtyři roky stojí obyvatelé České republiky před rozhodnutím, komu dají svůj hlas ve volbách do Poslanecké sněmovny. Velké množství z nich nemá mnohdy čas ani chuť pravidelně sledovat dění na politické scéně a nejsou si tudíž jistí, kdo z kandidátů či stran by dostatečně dobře zastupoval jejich názory a zájmy. Proto stále častěji lidé vyhledávají volební kalkulačky, kde můžou pomocí odpovědí na pár otázek zjistit shodu s některým z kandidátů nebo s některou ze stran. Na tomto již existujícím principu staví také tato bakalářská práce a dále ho rozšiřuje a modernizuje. 
 \par Skutečnost, že lidé volební kalkulačky pravidelně využívají, skýtá prostor k potenciálnímu budoucímu využítí této práce širokou veřejností a její existence by tedy nekončila ve školním archivu, nýbrž by se mohla stát univerzálním nástrojem, usnadňujícím život řadě běžných lidí. To byl také jeden z důvodů, proč mi toto téma dávalo smysl.
-\par Ve druhé kapitole (\ref{chap:Prerekvizity}) je čtenář seznámen s problematikou legislativního procesu v České republice, strukturou Poslanecké sněmovny a základními pojmy nutnými k porozumění této práci. Také je zde popsána existující konkurence (v době psaní této práce) a zdroj dat. Třetí kapitola (\ref{chap:technologie}) rozebírá použité technologie. Kromě HTML a CSS, které se nachází prakticky na každém webu, jsem se rozhodl pro tuto práci využít na klientské části framework\footnote{Framework: aplikační rámec} Bootstrap a css preprocessor SASS. Na serverové(\texttt{backendové}) části je využit python framework Django, k uložení dat je využita objektově-relační databáze PostgreSQL s podporou technologie Redis, zajišťující redukci počtu nutných databázových výpočtů pomocí jejich ukládání do mezipaměti. Na serveru je celá aplikace nasazena v Docker kontejnerech.  Ve čtvrté kapitole (\ref{chap:navrh}) je popsán postup návrhu webového rozhraní a struktury uložených dat.\\
-
-\todo{popis toho co v bp je}
-
-
-
-
-
-
+\par Ve druhé kapitole (\ref{chap:Prerekvizity}) je čtenář seznámen s problematikou legislativního procesu v České republice, strukturou Poslanecké sněmovny a základními pojmy nutnými k porozumění této práci. Také je zde popsána existující konkurence (v době psaní této práce) a zdroj dat. Třetí kapitola (\ref{chap:technologie}) rozebírá použité technologie. Kromě HTML a CSS, které se nachází prakticky na každém webu, jsem se rozhodl pro tuto práci využít na klientské části framework\footnote{Framework: aplikační rámec} Bootstrap a css preprocessor SASS. Na serverové(\texttt{backendové}) části je využit python framework Django, k uložení dat je využita objektově-relační databáze PostgreSQL s podporou technologie Redis, zajišťující redukci počtu nutných databázových výpočtů pomocí jejich ukládání do mezipaměti. Na serveru je celá aplikace nasazena v Docker kontejnerech.  Ve čtvrté kapitole (\ref{chap:navrh}) je popsán postup návrhu webového rozhraní a struktury uložených dat, následovaná kapitolou číslo 5, rozebírající nejdůležitější části implementace. Výčet kapitol uzavírá kapitola číslo 6, shrnující uživatelské testování, následovaná závěrem práce.
 
 
 
@@ -239,7 +231,7 @@ PostgreSQL\footnote{PostgreSQL: \url{https://www.postgresql.org/}} je výkonný 
 \par Při volbě databázového systému byl původní kandidát MySQL, jelikož s ním často pracuji a všechno potřebné jsem tak měl již připravené. Nicméně podle některých názorů \cite{WHY-POSTGRES1}\cite{WHY-POSTGRES2} je obecně lepší využívat databázový systém PostgreSQL, jelikož je na něj Django lépe připravené a používají ho i sami vývojáři, takže bude lépe dokumentován.
 
 \section{Další technologie}
-Za zmínku stojí také \texttt{npm}, což je nejpoužívanější správce javascriptových balíčků. 
+Za zmínku stojí také \texttt{npm}\footnote{NPM: \url{https://www.npmjs.com/}}, což je nejpoužívanější správce javascriptových balíčků. V projektu je využíván zejména na kompilaci jazyka SASS do CSS a automatickou obnovu lokálního serveru.
 
 
 
@@ -247,19 +239,21 @@ Za zmínku stojí také \texttt{npm}, což je nejpoužívanější správce java
 \chapter{Návrh aplikace}
 \label{chap:navrh}
 U webových aplikací obecně platí, že rozhodnutí uživatele o využití či opuštění stránky z velké části závisí na designu, použitelnosti ale hlavně prvním dojmu. Proto je třeba, aby kromě kvalitní funkcionality měla aplikace také moderní a promyšlený vzhled. \\
-Nejprve je třeba vytyčit cílovou skupinu. Díky tomu zjistíme, na jaké části systému je třeba se zaměřit a případně jakým způsobem je nejlépe zpracovat pro co největší uživatelský komfort. Dalším krokem je analýza případů užití, pomocí které zjistíme, jaké funkce budou uživatelé potřebovat a používat. Následuje návrh databáze, vycházející z dat, se kterými chceme pracovat a z jejich vztahů. Kapitola vrcholí samotným grafickým návrhem, zpracovávajícím všechny předchozí kroky do jednoho úhledného a intuitivního uživatelského rozhraní.
+Nejprve je třeba vytyčit cílovou skupinu. Díky tomu zjistíme, na jaké části systému je třeba se zaměřit a případně jakým způsobem je nejlépe zpracovat pro co největší uživatelský komfort. Dalším krokem je analýza případů užití, pomocí které zjistíme jaké funkce budou uživatelé potřebovat a používat. Následuje návrh databáze, vycházející z dat, se kterými chceme pracovat a z jejich vztahů. Dalším bodem je návrh grafické prezentace. Po ní už následují konkrétní teoretická řešení problémů implementace - výběr vhodných otázek, zpracování výsledků a postup při výběru severu a domény.
+
+Kapitola vrcholí samotným grafickým návrhem, zpracovávajícím všechny předchozí kroky do jednoho úhledného a intuitivního uživatelského rozhraní.
 
 
 \section{Cílová skupina}
 Cílová skupina kalkulačky budou obecně všichni lidé s volebním právem, tedy občané České republiky starší 18-ti let.\cite{ustava-volebni_pravo} Podle statistiky zveřejněné na webu statistikaamy.cz\footnote{statistikaamy.cz: \url{www.statistikaamy.cz}}, který spravuje Český statistický úřad\footnote{Český statistický úřad: \url{https://www.czso.cz/csu/czso/domov}}, používalo v roce 2016 internet 32,5\% z lidí starších 65 let\cite{statistikaamy}. Bude tedy třeba zvýšit důraz na jednoduchost, přehlednost a intuitivnost, které jsou zejména pro starší lidi kritické.
 \par Dále lze tuto skupinu rozdělit na dvě menší části. Tou první jsou lidé, kteří využíjí naplno všech funkcí webu, včetně registrace a uložení výsledků na svůj profil, hodnocení poslanců a komentářů. Zde budou spadat zejména mladší uživatelé. Pro ty bude důležité, aby registrace byla jednoduchá a rychlá a zároveň jim web umožňoval spravovat svůj profil a své uložené výsledky. 
-\par Zbylá část bude tvořena lidmi, které bude zajímat pouze jejich výsledek a hned po jeho zjištění web opustí. V tomto případě je nutné co nejvíce zjednodušit přístup k hlavní funkční části webu. \todo{Upravit podle reality}
+\par Zbylá část bude tvořena lidmi, které bude zajímat pouze jejich výsledek a hned po jeho zjištění web opustí. V tomto případě je nutné co nejvíce zjednodušit přístup k hlavní funkční části webu.
 
 
 \section{Případy užití}
-Po příchodu na web uvidí každý uživatel domovskou stránku, poskytující základní přehled o smyslu a cíli aplikace. Na výběr zde má celkem tři akční oblasti. Kromě horního menu a patičky, které jsou přístupny na každé stránce aplikace, také velké akční tlačítko sloužící pro přechod do kalkulačky. Použití kalkulačky je pro všechny uživatele stejné, liší se až konec, kdy registrovaný a přihlášený uživatel může využít možnosti uložit si právě získané výsledky ke svému profilu. Každý uživatel může také své výsledky sdílet na sociálních sítích. 
+Po příchodu na web uvidí každý uživatel domovskou stránku, poskytující základní přehled o smyslu a cíli aplikace. Na výběr zde má celkem tři akční oblasti. Kromě horního menu a patičky, které jsou přístupny na každé stránce aplikace, také velké akční tlačítko sloužící pro přechod do sekce s popisem kalkulačky. Každý uživatel bez rozdílu může hlasovat u jednotlivých hlasování a používat kalkulačku. Ovšem pouze registrovaným uživatelům jsou výsledky průběžně ukládány a neztratí se například po vymazání mezipaměti prohlížeče.
 \par Horní menu odkazuje na jednotlivé části aplikace, na přehledy poslanců, hlasování a stran, které může použít každý uživatel. Je zde také tlačítko pro přihlášení, případně odkaz na uživatelský účet, pokud již uživatel přihlášený je. Pokud není, je mu přes něj umožněno se buď přihlásit, nebo přejít dalším odkazem na registrační formulář. Z přehledu poslanců se dá následně přejít na detail jednotlivých poslanců. Zde může registrovaný uživatel ohodnotit konkrétního poslance pomocí hvězdiček, či přidat komentář. Tyto dvě funkce byly omezeny pouze pro přihlášené uživatele z důvodu možného falšování hodnocení, či urážlivých komentářů. 
-\par Přihlášeným uživatelům se přechodem do jejich účtu umožní upravovat svůj profil - přidat či upravit profilovou fotku, změnit heslo, spravovat svoje uložené výsledky.
+\par Přihlášeným uživatelům se přechodem do jejich účtu umožní upravovat svůj profil - přidat či upravit profilovou fotku, změnit heslo, změnit svůj email.
 \par V patičce pak má každý uživatel přístup k informacím o webu a ke stránce s kontakty.
 
 \par
@@ -281,7 +275,7 @@ Největší část databáze tvoří tabulky převzaté z výchozích dat. Zde p
 
 \section{Drátový model}
 \label{section:wireframe}
-Drátový, nebo-li takzvaně \texttt{wireframe} model, slouží ke zjednodušené vizualizaci umístění jednotlivých prvků webu v prostoru. Měl by obsahovat všechny elementy, které se budou na výsledném webu nacházet, nejlépe již i v konkrétních velikostech, aby šlo už v této fázi zjistit a odstranit případné nedostatky v rozložení. Smyslem tohoto modelu není zobrazit jak bude web vypadat, pouze jeho strukturu. Proto se používají spíše černobílé, či jednobarevné modely, ve kterých jsou designové bloky a obrázky nahrazeny jednoduchými obdélníky.
+Drátový, neboli takzvaně \texttt{wireframe} model, slouží ke zjednodušené vizualizaci umístění jednotlivých prvků webu v prostoru. Měl by obsahovat všechny elementy, které se budou na výsledném webu nacházet, nejlépe již i v konkrétních velikostech, aby šlo už v této fázi zjistit a odstranit případné nedostatky v rozložení. Smyslem tohoto modelu není zobrazit jak bude web vypadat, pouze jeho strukturu. Proto se používají spíše černobílé, či jednobarevné modely, ve kterých jsou designové bloky a obrázky nahrazeny jednoduchými obdélníky.
 \par V ideálním případě se pro každý typ podstránky dělají až 4 drátové modely, v závislosti na různých typech responzivního zobrazení. V této práci postačuje jedna velikost, vytvořená v programu AdobeXD\footnote{AdobeXD: \url{https://www.adobe.com/products/xd.html}}. Jak vypadá drátěný model úvodní strany lze vidět na obrázku \ref{fig:wireframe-homepage}. Kompletní model je přiložen jako příloha \todo{Č. přílohy}. 
 
 \begin{figure}
@@ -300,8 +294,8 @@ Při návrhu uživatelského rozhraní je obecně třeba dodržovat základy UX\
 
 \subsection{Postup při návrhu uživatelského rozhraní}
 Jako první bylo třeba vypracovat základní strukturu webu se všemi prvky. K tomu posloužil již zmiňovaný drátový model. Tento byl po vytvoření prezentován nezainteresovaným lidem v roli uživatelů, aby byla získána zpětná vazba. Na jejím základě došlo k několika úpravám.
-\par Jako další krok bylo potřeba vymyslet název a z něj vycházející logo celé aplikace. Jelikož smyslem celé práce je poskytnout lidem radu, čili učinit je chytřejšími (chytrý je anglicky \texttt{smart}), a následně jim díky tomu ulehčit výběr při volbě (anglicky \texttt{vote}), nabízelo se spojení právě těchto dvou slov. Původní volba byla SmartVote, nicméně po kontrole dostupnosti domény byla zvolena prohozená verze, čili VoteSmart, nebo-li česky \texttt{Volte chytře}. Samotné logo bylo následně vytvořeno ve webové aplikaci freelogodesign.org\footnote{freelogodesign.org: \url{https://www.freelogodesign.org/}}. Je tvořeno jménem webu a symbolem zaškrtávacího políčka, symbolizujícím hlavní účel webu - volbu.
-\par Následuje výběr vhodného barevného schématu. Jelikož se jedná o politicky orientovanou aplikaci pro prostředí České republiky, nabízí se použití národních barev - červené, modré a bílé. Konkrétní barevné hladiny (\#11457e pro modrou a \#d7141a pro červenou) byly převzaty z jedné z použitých grafik, konkrétně z mapy České republiky\cite{grafika-mapa}, viditelné na grafickém návrhu na úvodní straně. 
+\par Jako další krok bylo potřeba vymyslet název a z něj vycházející logo celé aplikace. Jelikož smyslem práce je poskytnout lidem radu, čili učinit je chytřejšími (chytrý je anglicky \texttt{smart}), a následně jim díky tomu ulehčit výběr při volbě (anglicky \texttt{vote}), nabízelo se spojení právě těchto dvou slov. Původní volba byla SmartVote, nicméně po kontrole dostupnosti domény byla zvolena prohozená verze, čili VoteSmart - česky \texttt{Volte chytře}. Samotné logo bylo následně vytvořeno ve webové aplikaci freelogodesign.org\footnote{freelogodesign.org: \url{https://www.freelogodesign.org/}}. Je tvořeno jménem webu a symbolem zaškrtávacího políčka, symbolizujícím hlavní účel webu - volbu.
+\par Následuje výběr vhodného barevného schématu. Jelikož se jedná o politicky orientovanou aplikaci pro prostředí České republiky, nabízí se použití národních barev - červené, modré a bílé. Konkrétní barevné hladiny (\texttt{\#11457e} pro modrou a \texttt{\#d7141a} pro červenou) byly převzaty z jedné z použitých grafik, konkrétně z mapy České republiky\cite{grafika-mapa}, viditelné na grafickém návrhu na úvodní straně. 
 \par Jako font byl zvolen Segoe UI. Primární používané velikosti jsou 35px pro nadpisy H1, 25px pro H2 a 16px pro běžný text.
 \par Samotný grafický návrh, viz příloha \todo{cislo prilohy} byl vypracováván opět v programu AdobeXD. Na obrázku \ref{fig:graphic-homepage} můžete vidět design úvodní strany. Při vytváření grafického návrhu byly použity principy responsivního designu, nicméně samotný návrh je pouze pro desktopovou\footnote{Desktopová verze je slangový výraz pro běžné obrazovky stolních počítačů, obecně s poměrem stran 16:9} verzi. 
 
@@ -315,8 +309,6 @@ Jako první bylo třeba vypracovat základní strukturu webu se všemi prvky. K 
     \label{fig:graphic-homepage}
 \end{figure}
 
-\todo{Možná rozvést jednotlivé strany?}
-
 
 \section{Výběr otázek}
 Jedná se o nejobtížnější a nejspíše také nejdůležitější část celé práce. Na výběru vhodných otázek totiž záleží nejenom to, nakolik dokážeme uživateli přiřadit podobnost s jednotlivými stranami a poslanci, ale také zda uživatel vůbec bude chtít aplikaci používat.\\
@@ -325,11 +317,11 @@ Jedná se o nejobtížnější a nejspíše také nejdůležitější část cel
 
 \par Důkladným průzkumem dat, která jsou podkladem této práce, jsem došel k závěru, že na jejich základě není možné u jednotlivých hlasování strojově určit, zda konkrétní hlasování bylo rozhodující například pro přijetí návrhu a jeho posunutí do dalšího kroku, či zda šlo kupříkladu pouze o hlasování o výboru, který dostane již přijatý návrh ke zpracování. Ohledem tohoto zjištění jsem kontaktoval přímo správce dat Poslanecké sněmovny, který tento fakt potvrdil. Také však uvedl, že pro některá hlasování je možné tyto informace dohledat prostřednictví sněmovních tisků. Ty jsou součástí každého návrhu zákona a každá změna jejich stavu je zaznamenávána v tabulce \texttt{hist}.\\
 
-\par Vzhledem k nemožnosti vyřadit irelevantní hlasování byla tedy využita pouze ta, u kterých lze pomocí tabulky \texttt{hist} určit jejich důležitost. Tím se snížil počet prezentovaný uživateli na přibližně 500 za toto volební období.\\ \todo{Doplnit konecne cislo}
+\par Vzhledem k nemožnosti vyřadit irelevantní hlasování byla tedy využita pouze ta, u kterých lze pomocí tabulky \texttt{hist} určit jejich důležitost. Tím se snížil počet prezentovaný uživateli na přibližně 900 za poslední dvě volební období.\\ 
 
 \par Jelikož se stále jedná o příliš velký počet, je třeba uživateli dále usnadnit práci. Konkrétně lze například seřadit hlasování podle relevance dle algoritmického vyhodnocení jejich skóre na základě rozdílnosti hlasování jednotlivých stran. Čím větší různorodost ve hlasování napříč stranami, tím lépe z hlediska určení podobnosti uživatele se stranami a poslanci po vyhodnocení v kalkulačce. \\
 
-\par Jakým způsobem je rozdílnost hlasování podstatná pro výpočet korelace s jednotlivými stranami je patrné například z vizualizace na obrázcích \ref{fig:analyza-rozdilne} a \ref{fig:analyza-stejne}. Zatímco z prvního grafu bychom nedokázali určit prakticky nic, jelikož takřka všichni přítomní hlasovali stejně, z toho druhého dokážeme již alespoň určitou rozdílnost vyčíst. Jen pro pořádek je však třeba zmínit, že podobnost v jednom hlasování není dostatečná a pro nějaké validní výstupy bude třeba, aby uživatel hlasoval u několika. Čím více hlasování, tím přesnější výsledky.
+\par Jakým způsobem je rozdílnost hlasování podstatná pro výpočet korelace s jednotlivými stranami je patrné například z vizualizace na obrázcích \ref{fig:analyza-rozdilne} a \ref{fig:analyza-stejne}. Zatímco z prvního grafu bychom nedokázali určit prakticky nic, jelikož takřka všichni přítomní hlasovali stejně, z toho druhého dokážeme již alespoň určitou rozdílnost vyčíst. Jen pro pořádek je však třeba zmínit, že podobnost v jednom hlasování není dostatečná a pro dostatečně validní výstupy bude třeba, aby uživatel hlasoval u několika. Čím více hlasování, tím přesnější výsledky.
 
 \begin{figure}
     \centering
@@ -356,7 +348,7 @@ Uživatel bude "hlasovat"\ ve stejných hlasováních jako skuteční poslanci. 
 Aby aplikaci mohli používat lidé, musí být umístěna na veřejně přístupném serveru. Zde máme pro web obecně 3 možnosti:
 \begin{itemize}
     \item Sdílený hosting\footnote{Hosting je zažitý název pro server na kterém je aplikace, či webová stránka umístěna}\\
-    Jedná se o nejlevnější a obecně nejjednodušší možnou variantu. Daň za nízkou cenu je však ve sdílení hardwaru s dalšími aplikacemi. Z toho důvodu není možné dopředu předvídat dostupné prostředky a náročnější aplikace můžou skončit chybou kvůli jejich spotřebování ostatními. Také zde uživatel ve většině případů nemá kontrolu nad nainstalovanými aplikacemi a může využívat pouze omezený počet těch předpřipravených. Je zde také bezpečnostní riziko, protože data různých aplikací jsou na stejných úložištích. Jako příklad můžeme uvést například endora.cz\footnote{endora.cz: \url{https://www.endora.cz/}}
+    Jedná se o nejlevnější a obecně nejjednodušší možnou variantu. Daň za nízkou cenu je však ve sdílení hardwaru s dalšími zákazníky. Z toho důvodu není možné dopředu předvídat dostupné prostředky a náročnější aplikace můžou skončit chybou kvůli jejich spotřebování ostatními. Také zde uživatel ve většině případů nemá kontrolu nad nainstalovanými aplikacemi a může využívat pouze omezený počet těch předpřipravených. Je zde také bezpečnostní riziko, protože data různých aplikací jsou na stejných úložištích. Jako příklad můžeme uvést například endora.cz\footnote{endora.cz: \url{https://www.endora.cz/}}
     \item Virtuální privátní server (VPS)\\
     U tohoto typu hostování je opět hardware serveru sdílen mezi několika aplikacemi. Každý uživatel však již má k dispozici vlastní virtualizovaný systém, který je oddělen od ostatních. Poskytuje tak uživateli mnohem více prostoru pro správu i lepší zabezpečení.
     Tuto sekci můžeme dále rozdělit na spravované a nespravované virtuální privátní servery. Ty spravované opět uživateli určitým způsobem omezí kontrolu nad nainstalovanými službami, nabídnou však většinou jednoduché možnosti nasazení předem připravených prostředí pro určité specifické zaměření přes přívětivé webové rozhraní, například na cloudways.com\footnote{cloudwazys.com: \url{https://www.cloudways.com/en/}} lze jedním klikem spustit virtualizovaný server pro WordPressovou aplikaci, kdy po pár minutách uživatel dostane již plně funkční prostředí s funkční WordPress aplikací včetně databáze, cache a základních pluginů.\par
@@ -370,7 +362,7 @@ Jelikož framework Django nespadá do úplně běžných případů užití, vě
 \par Zejména z důvodu výhod naprosté kontroly nad systémem a jednoduchosti nasazení jsem zvolil digitalocean.com\footnote{digitalocean.com: \url{https://www.digitalocean.com/}}, kde se dostačující sdílený VPS server dá pořídit za zhruba 5\$ měsíčně.
 
 \section{Doména}
-Jelikož přístup na web přes IP adresu není moc praktický, potřebuje server zapamatovatelnou doménu, pod kterou ho lidé budou moci vyhledat. Domény s koncovkou .cz stojí obecně zhruba 200 korun ročně a koupit ji není nic složitého. Například formulář na webu endora.cz\footnote{Endora.cz: \url{https://www.endora.cz/}} je velmi intuitivní. Zde byla také zakoupena doména použitá na vývoj této práce. Po pozdějším průzkumu bych nicméně doporučil pro umístění domén spíše wedos.cz\footnote{wedos.cz: \url{https://www.wedos.cz/}}, vzhledem k lepším možnostem pro přesměrování domény na data umístěná pod jiným správcem i k celkové roční ceně za tzv. "parkování". Domény lze však většinou kdykoliv bez poplatku přesunout mezi správci.  
+Jelikož přístup na web přes IP adresu není moc praktický, potřebuje server zapamatovatelnou doménu, pod kterou ho lidé budou moci vyhledat. Domény s koncovkou .cz stojí zhruba 200 korun ročně a koupit ji není nic složitého. Například formulář na webu endora.cz\footnote{Endora.cz: \url{https://www.endora.cz/}} je velmi intuitivní. Zde byla také zakoupena doména použitá na vývoj této práce. Po pozdějším průzkumu bych nicméně doporučil pro umístění domén spíše wedos.cz\footnote{wedos.cz: \url{https://www.wedos.cz/}}, vzhledem k lepším možnostem pro přesměrování domény na data umístěná pod jiným správcem i k celkové roční ceně za tzv. "parkování". Domény lze však většinou kdykoliv bez poplatku přesunout mezi správci.  
 \par Aby však web byl pod touto doménou dostupný, je třeba jí nejprve přidat záznam NS s odkazem na DNS servery\footnote{Dnes server je v podstatě překladač url adresy na IP adresu, viz \url{https://www.cloudflare.com/learning/dns/what-is-a-dns-server/}} zvoleného poskytovatele hostingu. Pro domény s koncovkou \texttt{.cz} je tato akce navíc specifická, protože nelze přidat jednotlivé DNS servery, nýbrž je potřeba vytvořit tzv. NSSET\footnote{Vytvoření NSSETu: \url{https://objednavka.forpsi.com/domain/cr-nsset.php}} a ten teprve přidat k záznamům pro doménu. Tím bude zajištěno, že každý dotaz hledající tuto URL adresu bude nasměrován správným směrem.
 
 \par Aby DNS servery uměly hledanou URL adresu přeložit na IP adresu, je třeba na serveru nastavit záznamy typu A(IPV4), AAAA(IPV6) a NS. Toto nastavení lze například pro digitalocean.com vidět na obrázku \ref{fig:digitalocean-dns}.
@@ -383,13 +375,10 @@ Jelikož přístup na web přes IP adresu není moc praktický, potřebuje serve
     \label{fig:digitalocean-dns}
 \end{figure}
 
-\section{?GDPR?}
-
-
 
 \chapter{Implementace a vyhodnocení}
 \label{chap:implementace}
-Cílem této kapitoly je poskytnout náhled do důležitých kroků v implementaci této práce. Nejprve je popsána základní struktura aplikace, vývojové prostředí a nástroje. Následuje popis klientské části. Na ni navazuje část serverová. Kapitola je zakončena popisem databázové vrstvy.
+Cílem této kapitoly je poskytnout náhled do důležitých kroků implementace. Nejprve je popsána základní struktura aplikace a import dat včetně nalezených problémů. Následuje popis výpočtu shod v kalkulačce.
 
 \section{Struktura aplikace}
 Jelikož základním programovacím jazykem aplikace je python, bude třeba instalovat python moduly. Ty lze samozřejmě instalovat i do celého uživatelského systému, nicméně běžně se pro jejich sdružování k jednotlivým projektům používá tzv. \texttt{virtuální prostředí}\footnote{Python Virtuální prostředí: \url{https://docs.python.org/3/library/venv.html}}. Tím docílíme oddělení python modulů využitých pro tento projekt od případných jiných verzí jinde v systému. Díky tomu odpadají problémy s možnou nekompatibilitou napříč projekty. 
@@ -446,20 +435,20 @@ Jelikož základním programovacím jazykem aplikace je python, bude třeba inst
 \end{minipage}
 
 \vspace{0.5cm}
-tato kostra byla poté podle potřeby rozšiřována. Byl přidána samostatná podaplikace pro správu dat \texttt{dataImport} a vlastní moduly pro jednotlivé důležité části aplikace. Následuje popis jednotlivých adresářů. Postupně od vygenerovaných po vlastní.
+Tato kostra byla poté podle potřeby rozšiřována. Byla přidána samostatná pod-aplikace pro správu importovaných dat \texttt{dataImport} a vlastní moduly pro jednotlivé důležité části aplikace. Následuje popis jednotlivých adresářů. Postupně od vygenerovaných po vlastní.
 
 \subsubsection{Kořenový adresář}
-V kořenovém adresáři se kromě zobrazených složek nachází také další pomocné soubory. \texttt{Gulpfile.js} používaný k nastavení chování \texttt{npm} při zapnutí lokálního vývojového serveru - nastavení automatické kompilace scss do css spolu s jeho konkatenací a minifikací, automatické obnovy stránek při změně v \texttt{template} souborech, automatické doplnění nového zkompilovaného css do stránky bez nutnosti jejího nového načtení a jiné.
+V kořenovém adresáři se kromě zde vypsaných složek nachází také další pomocné soubory. \texttt{Gulpfile.js} používaný k nastavení chování \texttt{npm} při zapnutí lokálního vývojového serveru - nastavení automatické kompilace scss do css spolu s jeho konkatenací a minifikací, automatické obnovy stránek při změně v \texttt{template} souborech, automatické doplnění nového zkompilovaného css do stránky bez nutnosti jejího nového načtení a jiné.
 \par Dále také \texttt{local.yml} a \texttt{production.yml} používané ke spuštění \texttt{docker-compose} a soubor \texttt{manage.py}, který slouží jako výchozí bod pro spouštění všech příkazů týkajících se djanga. Přes něj lze spustit lokální vývojový server, vytvářet databázové migrace, migrovat databáze, používat interaktivní django shell umožňující jednoduše pracovat s django modely v konzoli a mnoho dalších věcí. 
 
 \subsubsection{.envs}
 Tato složka slouží k ukládání lokálních a produkčních proměnných. Tyto soubory se běžně nenahrávají na žádný verzovací systém a nastavují se zvlášť na každém zařízení, jelikož obsahují citlivé přihlašovací a jiné údaje.
 
 \subsubsection{compose}
-Zde jsou uloženy soubory potřebné pro docker kontejnery. Podsložky django, postgres a traefik obsahují Dockerfile, který při spuštění aplikace přes \texttt{docker-compose} nastaví příslušný kontejner.
+Zde jsou uloženy soubory potřebné pro docker kontejnery. Podsložky django, postgres a traefik obsahují soubor Dockerfile, který při spuštění aplikace přes \texttt{docker-compose} nastaví příslušný kontejner.
 
 \subsubsection{config}
-Tato složka sdružuje hlavní aplikační nastavení. V souboru \texttt{base.py} se nachází všechna nastavení bez kterých by aplikace nemohla fungovat \todo{moznost rozepsat}. Soubory \texttt{local.py} a \texttt{production.py} pak slouží k upřesnění některých nastavení pro produkční a lokální nasazení. Kromě toho se zde nachází také \texttt{urls.py}, umožňující tzv. \texttt{routing}, což je vlastně určení co aplikace udělá při obdržení požadavku na určitou url adresu. Obecně se zde nastavují cesty k jednotlivým modulům aplikace do pole \texttt{urlpatterns}. Například jedna z položek
+Tato složka sdružuje hlavní aplikační nastavení. V souboru \texttt{base.py} se nachází všechna nastavení bez kterých by aplikace nemohla fungovat. Soubory \texttt{local.py} a \texttt{production.py} pak slouží k upřesnění některých nastavení pro produkční a lokální nasazení. Kromě toho se zde nachází také \texttt{urls.py}, umožňující tzv. \texttt{routing}, což je vlastně určení co aplikace udělá při obdržení požadavku na určitou url adresu. Obecně se zde nastavují cesty k jednotlivým modulům aplikace do pole \texttt{urlpatterns}. Například jedna z položek
 \begin{verbatim}
     path("schuze/", include("volebni_kalkulacka.schuze.urls", 
          namespace="schuze")),
@@ -468,19 +457,19 @@ Tato složka sdružuje hlavní aplikační nastavení. V souboru \texttt{base.py
 znamená, že pokud uživatel přistoupí na adresu \texttt{urlwebu.domena/schuze}, tak se všechny cesty budou hledat v souboru \texttt{urls.py} v modulu \texttt{volebni\_kalkulacka.schuze}.
 
 \subsubsection{locale}
-Tento adresář je vytvořen aby obsahoval vygenerované jazykové soubory, pokud by aplikace používala více jazyků. Cookiecuter-django v základu podporuje multijazyčnost. V této práci, jelikož je specifická jenom pro Českou Republiku, tato možnost nebyla využita, nicméně pokud by byla potřeba, stačilo by pouze nastavit proměnnou \texttt{USE\_I18N} v \texttt{base.py} na True a začít využívat tzv. \texttt{trans tagy} kolem každého textu zobrazovaného uživateli. Před nasazením aplikace do produkce by se spustil sběrač těchto textů, který by z nich vytvořil přehledný dokument. Zde by se texty ručně přeložily a následným kompilačním příkazem by se vytvořil binární soubor, ze kterého by django čerpalo při změně jazyka. Celý postup je přehledně popsán v dokumentaci\footnote{Django překlady \url{https://docs.djangoproject.com/en/3.2/topics/i18n/translation/}}.
+Tento adresář je vytvořen aby obsahoval vygenerované jazykové soubory, pokud by aplikace používala více jazyků. Cookiecuter-django v základu podporuje multijazyčnost. V této práci, jelikož je specifická jenom pro Českou Republiku, tato možnost nebyla využita, nicméně pokud by byla potřeba, stačilo by pouze nastavit proměnnou \texttt{USE\_I18N} v \texttt{base.py} na \texttt{True} a začít využívat tzv. \texttt{trans tagy} kolem každého textu zobrazovaného uživateli. Před nasazením aplikace do produkce by se spustil sběrač těchto textů, který by z nich vytvořil přehledný dokument. Zde by se texty ručně přeložily a následným kompilačním příkazem by se vytvořil binární soubor, ze kterého by django čerpalo při změně jazyka. Celý postup je přehledně popsán v dokumentaci\footnote{Django překlady \url{https://docs.djangoproject.com/en/3.2/topics/i18n/translation/}}.
 
 \subsubsection{requirements}
-Jelikož aplikace už v základu využívá několik python modulů, nalezneme zde jejich instalační seznam pro python instalátor \texttt{pip}. Je rozdělen stejně jako nastavení do 3 souborů - \texttt{base.txt}, \texttt{local.txt} a \texttt{production.txt}.
+Jelikož aplikace už v základu využívá několik python modulů, nalezneme zde jejich instalační seznam pro python instalátor \texttt{pip}. Je rozdělen stejně jako nastavení do 3 souborů - \texttt{base.txt}, \texttt{local.txt} a \texttt{production.txt}. Díky nim není nutné jednotlivé použité moduly složitě vyhledávat ručně, ale stačí spustit jeden příkaz a všechny moduly jsou nainstalovány.
 
 \subsubsection{volebni\_kalkulacka}
-Hlavní aplikační složka. Zde budou umístěny všechny další navazující vytvořené moduly. V adresáři \texttt{static} se nachází všechny statické soubory, rozdělené podle typu, css, fonty, obrázky, javascript a sass před tím než se zkompiluje na css. Tyto soubory jsou po vykreslení webové stránky načítány z prohlížeče jako zdroje. Přímo z této složky je to však možné pouze v lokálním prostředí. Na produkci je nejprve nutné všechny statické soubory umístit na místo k tomu určené. Django to zvládne jedním jednoduchým příkazem\footnote{Django statické soubory: \url{https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/}}.
+Hlavní aplikační složka. Zde budou umístěny všechny další navazující vytvořené moduly. V adresáři \texttt{static} se nachází všechny statické soubory, rozdělené podle typu - CSS, fonty, obrázky, JavaScript a SASS, před tím než se zkompiluje na CSS. Tyto soubory jsou po vykreslení webové stránky načítány z prohlížeče jako zdroje. Přímo z této složky je to však možné pouze v lokálním prostředí. Na produkci je nejprve nutné všechny statické soubory umístit na místo k tomu určené. Django to zvládne jedním jednoduchým příkazem\footnote{Django statické soubory: \url{https://docs.djangoproject.com/en/3.2/ref/contrib/staticfiles/}}.
 
 \subsubsection{volebni\_kalkulacka.templates}
 \par V \texttt{templates} se nachází HTML šablony používané návrhovým vzorem MVT. Jelikož šablony nejsou pouze samotné HTML, ale obsahují také Django Templating Language (django šablonovací jazyk), můžeme při vytváření šablon využívat určitý druh "dědičnosti", kdy pro základní strukturu stránky, která se bude vždy opakovat vytvoříme \texttt{base.html} soubor. Zde se bude nacházet HTML hlavička, scripty, fonty a jiné statické věci využívané napříč celým projektem. Jednotlivé stránky pak dále budou tuto základní šablonu pouze rozšiřovat. To je umožněno prostřednictví tzv. \texttt{block} (blokových) značek, kdy blok z rodičovské šablony je nahrazen blokem se stejným názvem ze šablony rozšiřující.
 
 \subsubsection{volebni\_kalkulacka.users}
-Předpřipravený modul pro správu uživatelů. Vytváří rozhraní pro registraci, správu uživatelských účtů, změnu hesla, změnu emailu a potvrzení emailu. Také jsou zde uloženy pohledy(views) pro zpracování použití kalkulačky.
+Předpřipravený modul pro správu uživatelů. Vytváří rozhraní pro registraci, správu uživatelských účtů, změnu hesla, změnu emailu a potvrzení emailu.
  
 \subsubsection{dataImport}
 První z vlastních modulů. Slouží pouze k organizaci kódu potřebného pro stahování a aktualizaci dat z webu poslanecké sněmovny. 
@@ -507,11 +496,13 @@ kde na prvním sloupci je odkaz na unikátní identifikátor poslance v tabulce 
     \item nekonzistence dat\\
     V tabulce \texttt{zarazeni} může mít sloupeček \texttt{id\_of} hodnotu cizích klíčů buď z tabulky \texttt{organy}, nebo z tabulky \texttt{funkce} v závislosti na hodnotě sloupce \texttt{cl\_funkce}.
     \item data nekorespondující k deklarovanému typu podle popisu tabulek\\
-    Ve sloupcích podle popisu definovaných jako INT, či-li celočíselné, se nachází nejenom čísla ale někdy také písmena či kombinace čísel a písmen. Například v tabulce \texttt{tisky} se ve sloupci \texttt{zm\_lhuty} nachází kromě v popisu deklarovaných hodnot "1"\ a "2"\ také hodnoty "a"\ a "n".
-    \item Kódování souborů nekorespondující s deklarovaným v popisu dat, ani s žádným z několika možných vyzkoušených.\\
+    Ve sloupcích podle popisu definovaných jako INT, čili celočíselné, se nachází nejenom čísla ale někdy také písmena či kombinace čísel a písmen. Například v tabulce \texttt{tisky} se ve sloupci \texttt{zm\_lhuty} nachází kromě v popisu deklarovaných hodnot "1"\ a "2"\ také hodnoty "a"\ a "n".
+    \item Kódování souborů nekorespondující s deklarovaným v popisu, ani s žádným z několika možných vyzkoušených.\\
     Například u tabulky \texttt{tisky} by stejně jako u ostatních tabulek mělo fungovat deklarované kódování \texttt{windows-1250}, nicméně při pokusu o otevření s tímto kódováním dochází k chybám. Bylo proto nutné nastavit parametr \texttt{errors='replace'}, na základě kterého dojde k nahrazení nečitelných znaků. Tyto znaky však poté byly zobrazeny na webu a podstatně zhoršovaly uživatelskou zkušenost, proto bylo třeba je nahradit zpětně zase na odpovídající české znaky.
-    \item Nejednoznačnost prázdných hodnot
-    V některých tabulkách je prázdné pole zaznačeno oddělovači sloupců u sebe, což odpovídá hodnotě NULL, čili žádné. Nicméně jinde jsou jako prázdné hodnoty použity mezery, či lomítka. Například v případě tabulky \texttt{osoby} a sloupce \texttt{pred} je to buď NULL, nebo mezera.
+    \item Nejednoznačnost prázdných hodnot\\
+    V některých tabulkách je prázdné pole zaznačeno oddělovači sloupců u sebe, což odpovídá hodnotě NULL, čili žádné. Nicméně jinde jsou jako prázdné hodnoty použity mezery, či lomítka. Například v případě tabulky \texttt{osoby} a sloupce \texttt{pred} je to dokonce kombinace - buď NULL, nebo mezera.
+    \item Nekonzistence názvů sloupců odkazujících na stejný prvek napříč tabulkami\\
+    V některých tabulkách je cizí klíč odkazující na volební období pojmenován jako \texttt{id\_org}, v jiných zase jako \texttt{id\_organ}, což velmi znepříjemňuje práci s daty kvůli neustálé nutnosti kontrolovat názvy sloupců.
     
     
 \end{itemize}
@@ -527,11 +518,12 @@ z kořenového adresáře aplikace. Jeho definice se nachází v souboru\\
 \par V prvotní verzi tento script zpracovával každý nahrávaný soubor řádek po řádku a každý zvlášť vkládal po dávkách do databáze. Tímto způsobem bylo možné lépe kontrolovat jak budou data zpracována a případně opravit nalezené chyby. Nicméně po změně koncepce aplikace a nutnosti zpracovávat všechna data bez omezení na pouze poslední volební období jsem narazil na výkonnostní problémy, kdy by zpracování zhruba 17 milionů řádků databáze přestalo být realizovatelné.
 Proto bylo nutné navrhnout lepší způsob.
 
-\par Současná verze již utilizuje PostgreSQL příkaz \texttt{COPY}, díky kterému je možné zpracovávat celé soubory najednou\cite{psql-copy}, velmi zásadně zvýšilo rychlost, jakou jsou data do databáze nahrána. Bohužel v důsledku toho již není možné průběžně data upravovat. Navíc je třeba převést unl formát na csv.
+\par Současná verze již utilizuje PostgreSQL příkaz \texttt{COPY}, díky kterému je možné zpracovávat celé soubory najednou\cite{psql-copy}, což velmi zásadně zvýšilo rychlost, jakou jsou data do databáze nahrána. Bohužel v důsledku toho již není možné průběžně data upravovat. Navíc je třeba převést unl formát na csv.
 
-\par Samotný script tedy funguje následovně. Nejprve dynamicky získáme odkazy všech stažitelných zip souborů na stránce s daty. Tímto zajistíme automatické přidání nových volebních období bez nutnosti úpravy kódu. Následně jsou všechny staženy a rozbaleny. 
+\par Samotný script tedy funguje následovně. Nejprve jsou dynamicky získány odkazy všech stažitelných zip souborů na stránce s daty. Tímto zajistíme automatické přidání nových volebních období bez nutnosti úpravy kódu. Následně jsou staženy a rozbaleny. \\
+
 \par Některé soubory zůstávají neměnné napříč všemi volebními obdobími. Jejich názvy jsou uloženy v souboru s konstantami v konstantě s názvem \texttt{INITIAL\_FILE\_NAMES} s datovým typem \texttt{dict} neboli česky slovník, kde je navázán název databázové tabulky na odpovídající jméno staženého souboru. Přes tyto dvojice (tabulka:soubor) je iterováno hned 2x. Poprvé je to kvůli již zmiňovanému unl formátu, konkrétně poslednímu oddělovači. Tento musí být odstraněn, jelikož příkaz COPY očekává, že za každým oddělovačem v souboru se nachází nový sloupec. Nahrávaný soubor je tedy otevřen a do nového souboru s příponou \texttt{\_formatted} je uložen jeho obsah již bez tohoto nezbedného znaku.
-\par Druhá iterace nejprve provede nad danou tabulkou příkaz \texttt{TRUNCATE RESTART IDENTITY}, který z ní smaže všechna data a vynuluje čítač řádků pro tabulky bez primárního klíče\cite{psql-truncate}. Dále získá hlavičky souboru, respektive tabulky, z konstanty \texttt{TABLE\_HEADERS}, což je opět slovník dvojic, nyní ve tvaru (tabulka:pole názvů hlaviček). Následuje vypnutí databázových spouštěčů (anglicky trigger), aby bylo možné nahrát i data s nekonzistentními hodnotami, nahrání dat a opětovné zapnutí spouštěčů. 
+\par Druhá iterace nejprve provede nad danou tabulkou příkaz \texttt{TRUNCATE RESTART IDENTITY}, který z ní smaže všechna data a vynuluje čítač řádků\cite{psql-truncate}. Dále získá hlavičky souboru, respektive tabulky, z konstanty \texttt{TABLE\_HEADERS}, což je opět slovník dvojic, nyní ve tvaru (tabulka:pole názvů hlaviček). Následuje vypnutí databázových spouštěčů (anglicky trigger), aby bylo možné nahrát i data s nekonzistentními hodnotami, nahrání dat a opětovné zapnutí spouštěčů. 
 
 \par Pro soubory s hlasováním je postup stejný, s tím rozdílem, že se budou objevovat nové názvy souborů pro nová volební období. Názvy jsou proto v této fázi vybírány dynamicky ze stažených souborů a všechny se nahrávají do jedné tabulky. Stejný princip je uplatněn jak pro tabulky \texttt{hl\_poslanec} tak \texttt{hl\_hlasovani}.\\
 
@@ -564,7 +556,7 @@ WHERE
     )
 \end{lstlisting}
 
-Následně již v pythonu provedeme nad získanými daty cyklus, kdy pro každé z hlasování pokládáme další dotaz do databáze. Tentokrát hledáme dvojici (zkratka, vysledek), kde zkratka je zkratka strany a vysledek je hlasováni poslance. Jedna dvojice za každého poslance zúčastněného v konkrétním hlasování. \todo{prostor pro rozsireni}\\
+Následně již v pythonu provedeme nad získanými daty cyklus, kdy pro každé z hlasování pokládáme další dotaz do databáze. Tentokrát hledáme dvojici (zkratka, vysledek), kde zkratka je zkratka strany a vysledek je hlasováni poslance. Jedna dvojice za každého poslance zúčastněného v konkrétním hlasování.\\
 \begin{lstlisting}[language=SQL, caption={SQL dotaz na získání dvojic zkratka, výsledek pro zadané hlasování}, label=code:sql-zkratka-vysledek]
 SELECT 
     zkratka,vysledek
@@ -602,7 +594,7 @@ Výsledek databázového dotazu je načten do knihovny Pandas, což je rychlý, 
 
 kde \texttt{N} je celkový počet stran, \texttt{i} odpovídá jedné ze stran přes kterou cyklus zrovna prochází, \texttt{pocet\_pro} je počet poslanců ve straně hlasujících pro přijetí, \texttt{pocet\_proti} je počet poslanců ve straně hlasujících pro zamítnutí, \texttt{pocet\_clenu} je celkový počet přítomných členů strany hlasujících pro přijetí/zamítnutí a \texttt{pocet\_vsech\_zucastnenych} je celkový počet členů všech stran přítomných na tomto hlasování.
 
-\par Cílem tohoto hodnocení je nalézt ta hlasování, kde poslanci jednotlivých stran hlasovali nejvíce rozdílně. Či-li kde je nejmenší rozdíl mezi hlasy pro a proti uvnitř jednotlivých stran. Tento rozdíl dále násobíme poměrem velikosti strany k celkovému počtu členů parlamentu, aby se přizpůsobila váha jednotlivých stran k jejich velikosti.  
+\par Cílem tohoto hodnocení je nalézt ta hlasování, kde poslanci jednotlivých stran hlasovali nejvíce rozdílně. Čili kde je nejmenší rozdíl mezi hlasy pro a proti uvnitř jednotlivých stran. Tento rozdíl dále násobíme poměrem velikosti strany k celkovému počtu členů parlamentu, aby se přizpůsobila váha jednotlivých stran k jejich velikosti.  
 
 \par Výsledek hodnocení poté uložíme spolu s číslem hlasování do tabulky \texttt{hl\_hlasovani\_rating}. Při výpisu uživateli poté řadíme hlasování od těch s největším ohodnocením.\\
 
@@ -618,7 +610,7 @@ U každého hlasování může uživatel sám hlasovat. K tomuto účelu slouž�
     \label{fig:aplikace-hlasovani}
 \end{figure}
 
-\par Své výsledky si uživatel může zobrazit ve svém uživatelském profilu viz obrázek \ref{aplikace-kalkulacka}. Jelikož uživatel může hlasovat napříč několika volebními obdobími, byly výsledky rozděleny podle toho kam patří. Uživatel tedy má jeden výsledek pro každé období zvlášť. 
+\par Své výsledky si uživatel může zobrazit ve svém uživatelském profilu viz obrázek \ref{fig:aplikace-kalkulacka}. Jelikož uživatel může hlasovat napříč několika volebními obdobími, byly výsledky rozděleny podle nich. Uživatel tedy má jeden výsledek pro každé období zvlášť. 
 
 \begin{figure}[H]
     \centering
@@ -725,8 +717,72 @@ ORDER
 
 \chapter{Testování}
 \label{chap:testovani}
+Aby bylo možné aplikaci testovat, bylo nejprve nutné nasadit ji do produkčního prostředí a zpřístupnit uživatelům. K tomuto účelu jsem využil vlastní pronajatý VPS na Digitalocean.com. Aby uživatelé na nichž bude testování prováděno nemuseli psát do prohlížeče IP adresu, nasměroval jsem zde svoji doménu tomasmajerech.cz. 
+
+\subsection{Průběžné testy}
+S testováním aplikace jsem začal již zpočátku. Drátový model byl po dokončení zaslán 6 nezávislým uživatelům ve věkovém rozmezí 16-57 let, kdy každý měl posoudit smysluplnost rozložení dat a celkové struktury. Na základě jejich zpětné vazby byly provedeny drobné změny, například byl přidán obrázek české republiky na úvodní stranu a tlačítko kalkulačky posunuto ze středu více vlevo, či byl do hlasování přidán přehled hlasujících poslanců.
+
+\par Druhé kolo testování proběhlo po dokončení grafického návrhu. Jeho cílem bylo ověřit, zda vizuální stránka aplikace nezaostává za běžnými standardy. Tento test musel být proveden 2x, jelikož v rané části vývoje došlo k celkové restrukturalizaci projektu a změně koncepce.
+\par Z výsledků vyplynulo, že na na všechny z testovaných subjektů celkové grafické provedení aplikace působí profesionálně, někdy až oficiálně v kontextu státní sféry. Na celkovém grafickém stylu tedy nebylo třeba nic upravovat. Nicméně objevily se výhrady k některým jednotlivým částem aplikace, například k zobrazení jednotlivých hlasování k bodu pořadu schůze po najetí myší, viz \ref{fig:wireframe-schuze-hover}, které bylo na základě tohoto hodnocení upraveno do současné podoby.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{obrazky-figures/wireframe-schuze-hover.png}
+    \caption{Původní návrh zobrazení hlasování pro bod schůze}
+    \label{fig:wireframe-schuze-hover}
+\end{figure}
 
 
+\par Po negativní reakci byly také upraveny šablony posílaných emailů pro registraci, změnu hesla a zapomenuté heslo. Z původní pouze textové podoby je nyní HTML emailová šablona, která působí na nové uživatele lepším dojmem. Aktuální podobu emailových zpráv, které uživatel obdrží, lze vidět na obrázku \ref{fig:graphic-email}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{obrazky-figures/Email.pdf}
+    \caption{Současná podoba emailových šablon}
+    \label{fig:graphic-email}
+\end{figure}
+
+\subsection{Testování produkční aplikace}
+Jelikož na testování produkční verze aplikace by již nebyl vzorek pouhých 6 uživatelů a jejich názorů dostatečný, bylo třeba prozkoumat nové možnosti. Tou první je tzv. \texttt{usability testing}, česky testování použitelnosti. Druhou je dotazník vytvořený pomocí Formulářů od Google.
+
+\subsubsection{Testování použitelnosti}
+Testování použitelnosti je způsob testování funkcionality webu, aplikace, či jiného digitálního produktu pozorováním skutečných uživatelů při jeho používání a provádění úkolů. Cílem tohoto testování je objevit oblasti, kde může dojít ke zmatení uživatele a odkrýt příležitosti k vylepšení celkového uživatelského zážitku\cite{hotjar-usability-testing}. 
+\par Tato metoda je velmi časově náročná, jelikož vyžaduje plnou účast dvou a více lidí, kdy tester používá aplikaci, plní zadané úkoly a nahlas vyjadřuje svoje myšlenky, zatímco pozorovatel zaznamenává vše důležité.
+
+\par Vzhledem k nutnosti osobní přítomnosti testovacích subjektů a současným platným omezením pohybu osob byl tento test aplikován pouze na osoby ve společné domácnosti. Konkrétně 3 muže ve věku 20-23 let bez předchozí zkušenosti s touto aplikací. Test byl prováděn s každým subjektem zvlášť, nejprve na stolním počítači, poté na mobilním telefonu. V obou případech byly stejné úkoly. 
+\begin{enumerate}
+    \item Otevřít webovou stránku
+    \item Dát 5 hvězdiček a komentář Tomio Okamurovi
+    \item Najít hlasování které proběhlo naposledy
+    \item V tomto hlasování přidat svůj hlas
+    \item Najít 5 nejzajímavějších hlasování z pohledu kalkulačky a hlasovat i u nich
+    \item Prohlédnout si svoje výsledky v kalkulačce
+    \item Změnit heslo k účtu
+    \item Odhlásit se
+\end{enumerate}
+
+Celkové výsledky testů dopadly spíše pozitivně. U žádného ze subjektů se neobjevily problémy s nalezením konkrétního poslance, komentováním, ani hvězdičkovým ohodnocením poslance. Při hledání posledního hlasování však shodně všichni uživatelé hledali ve špatné kategorii, kdy místo sekce Schůze, kde je poslední hlasování logicky umístěno v posledním bodě poslední schůze, hledali nejprve v sekci Hlasování, která však slouží k jinému účelu. Po otevření sekce Schůze již s nalezením nebyly žádné problémy, stejně tak s přidáním vlastního hlasu. Nalezení nejzajímavějších hlasování z pohledu kalkulačky již bylo pro testovací subjekty jednoduché, jelikož znali sekci Hlasování z předchozího kroku. Výsledky ke kalkulačce hledaly subjekty nejprve v modulu pro hlasování. Po neúspěchu však logickou dedukcí odvodili, že se nejspíše výsledky budou nacházet v profilu, kde je také nalezli. Změna hesla k účtu a odhlášení nepředstavovaly žádný problém.\\
+
+
+
+\subsection{Testování s dotazníky}
+Kombinace dotazníku a odkazu na produkční aplikaci umožňuje rychle a efektivně získat názory velkého množství lidí. Tato metoda není zdaleka tak důkladná jako testování použitelnosti, nicméně umožňuje široký záběr a získání velkého množství informací a názorů.
+
+\par Subjekty v dotazníkovém testování měly splnit stejné úkoly jako v testování použitelnosti a následně vyplnit formulář. Otázky ve formuláři byly:
+\begin{enumerate}
+    \item Použili jste k návštěvě webu mobilní telefon?
+    \item Podařilo se vám zvládnout všechny úkoly?
+    \item Pokud ne, u kterého úkolu jste se zasekl/a?
+    \item Pokud jste se zasekl/a, zkuste stručně popsat proč.
+    \item Jaké hodnocení byste aplikaci udělili?
+    \item Kdybyste mohl/a něco změnit, co by to bylo?
+\end{enumerate}
+
+
+
+
+\subsection{Závěry z testování} 
+Na základě získaných informací bylo upraveno následující. Směřování tlačítka k vyzkoušení kalkulačky na úvodní straně bylo změněno ze sekce Hlasování na stránku O nás. Zde byl přidán podrobnější popis jednotlivých sekcí. Také byl přidán odkaz na výsledky přímo do hlasovacího modulu. 
 
 
 \chapter{Závěr (1 strana)}
