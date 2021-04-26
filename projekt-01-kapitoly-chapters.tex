@@ -3,7 +3,7 @@
 \chapter{Úvod}
 Každé čtyři roky stojí obyvatelé České republiky před rozhodnutím, komu dají svůj hlas ve volbách do Poslanecké sněmovny. Velké množství z nich nemá mnohdy čas ani chuť pravidelně sledovat dění na politické scéně a nejsou si tudíž jistí, kdo z kandidátů či stran by dostatečně dobře zastupoval jejich názory a zájmy. Proto stále častěji lidé vyhledávají volební kalkulačky, kde můžou pomocí odpovědí na pár otázek zjistit shodu s některým z kandidátů nebo s některou ze stran. Na tomto již existujícím principu staví také tato bakalářská práce a dále ho rozšiřuje a modernizuje. 
 \par Skutečnost, že lidé volební kalkulačky pravidelně využívají, skýtá prostor k potenciálnímu budoucímu využítí této práce širokou veřejností a její existence by tedy nekončila ve školním archivu, nýbrž by se mohla stát univerzálním nástrojem, usnadňujícím život řadě běžných lidí. To byl také jeden z důvodů, proč mi toto téma dávalo smysl.
-\par Ve druhé kapitole (\ref{chap:Prerekvizity}) je čtenář seznámen s problematikou legislativního procesu v České republice, strukturou Poslanecké sněmovny a základními pojmy nutnými k porozumění této práci. Také je zde popsána existující konkurence (v době psaní této práce) a zdroj dat. Třetí kapitola (\ref{chap:technologie}) rozebírá použité technologie. Kromě HTML a CSS, které se nachází prakticky na každém webu, jsem se rozhodl pro tuto práci využít na klientské části framework\footnote{Framework: aplikační rámec} Bootstrap a css preprocessor SASS. Na serverové(\texttt{backendové}) části je využit python framework Django, k uložení dat je využita objektově-relační databáze PostgreSQL s podporou technologie Redis, zajišťující redukci počtu nutných databázových výpočtů pomocí jejich ukládání do mezipaměti. Na serveru je celá aplikace nasazena v Docker kontejnerech.  Ve čtvrté kapitole (\ref{chap:navrh}) je popsán postup návrhu webového rozhraní a struktury uložených dat, následovaná kapitolou číslo 5, rozebírající nejdůležitější části implementace. Výčet kapitol uzavírá kapitola číslo 6, shrnující uživatelské testování, následovaná závěrem práce.
+\par Ve druhé kapitole (\ref{chap:Prerekvizity}) je čtenář seznámen s problematikou legislativního procesu v České republice, strukturou Poslanecké sněmovny a základními pojmy nutnými k porozumění této práci. Také je zde popsána existující konkurence (v době psaní této práce) a zdroj dat. Třetí kapitola (\ref{chap:technologie}) rozebírá použité technologie. Kromě HTML a CSS, které se nachází prakticky na každém webu, jsem se rozhodl pro tuto práci využít na klientské části framework\footnote{Framework: aplikační rámec} Bootstrap a css preprocessor SASS. Na serverové(\texttt{backendové}) části je využit python framework Django, k uložení dat je využita objektově-relační databáze PostgreSQL s podporou technologie Redis, zajišťující redukci počtu nutných databázových výpočtů pomocí jejich ukládání do mezipaměti. Na serveru je celá aplikace nasazena v Docker kontejnerech.  Ve čtvrté kapitole (\ref{chap:navrh}) je popsán postup návrhu webového rozhraní a struktury uložených dat, následovaná kapitolou číslo \ref{chap:implementace}, rozebírající nejdůležitější části implementace. Výčet kapitol uzavírá kapitola číslo \ref{chap:testovani}, shrnující uživatelské testování, následovaná závěrem práce (\ref{chap:zaver}).
 
 
 
@@ -507,15 +507,15 @@ kde na prvním sloupci je odkaz na unikátní identifikátor poslance v tabulce 
     
 \end{itemize}
 
-\subsubsection{Prvotní naplnění databáze}
-Prvotní naplnění databáze lze provést přes příkaz
+\subsubsection{Aktualizace databáze}
+Aktualizaci databáze lze provést přes příkaz
 \begin{verbatim}
     python3 manage.py initial_import
 \end{verbatim}
 z kořenového adresáře aplikace. Jeho definice se nachází v souboru\\
 \texttt{volebni\_kalkulacka.psp\_data.management.commands.initial\_import.py}. \\
 
-\par V prvotní verzi tento script zpracovával každý nahrávaný soubor řádek po řádku a každý zvlášť vkládal po dávkách do databáze. Tímto způsobem bylo možné lépe kontrolovat jak budou data zpracována a případně opravit nalezené chyby. Nicméně po změně koncepce aplikace a nutnosti zpracovávat všechna data bez omezení na pouze poslední volební období jsem narazil na výkonnostní problémy, kdy by zpracování zhruba 17 milionů řádků databáze přestalo být realizovatelné.
+\par V prvotní verzi tento script\footnote{Script: krátký kus samostatně spustitelného kódu} zpracovával každý nahrávaný soubor řádek po řádku a každý zvlášť vkládal po dávkách do databáze. Tímto způsobem bylo možné lépe kontrolovat jak budou data zpracována a případně opravit nalezené chyby. Nicméně po změně koncepce aplikace a nutnosti zpracovávat všechna data bez omezení na pouze poslední volební období jsem narazil na výkonnostní problémy, kdy by zpracování zhruba 17 milionů řádků databáze přestalo být realizovatelné.
 Proto bylo nutné navrhnout lepší způsob.
 
 \par Současná verze již utilizuje PostgreSQL příkaz \texttt{COPY}, díky kterému je možné zpracovávat celé soubory najednou\cite{psql-copy}, což velmi zásadně zvýšilo rychlost, jakou jsou data do databáze nahrána. Bohužel v důsledku toho již není možné průběžně data upravovat. Navíc je třeba převést unl formát na csv.
@@ -598,7 +598,14 @@ kde \texttt{N} je celkový počet stran, \texttt{i} odpovídá jedné ze stran p
 
 \par Výsledek hodnocení poté uložíme spolu s číslem hlasování do tabulky \texttt{hl\_hlasovani\_rating}. Při výpisu uživateli poté řadíme hlasování od těch s největším ohodnocením.\\
 
-\par Nakonec je spuštěna funkce na nahrazení nevalidních znaků popsaných v problémech s daty na začátku kapitoly \ref{import_dat}. 
+\par Nakonec je spuštěna funkce na nahrazení nevalidních znaků popsaných v problémech s daty na začátku kapitoly \ref{import_dat}.\\
+
+Průběžná aktualizace dat bude prováděna pomocí \texttt{cronu}, což je standardní Unix nástroj používaný na naplánování automatického spuštění příkazů v zadaný čas \cite{cron}. Na serveru kde bude aplikace umístěna bude do \texttt{crontab} souboru třeba přidat záznam
+\begin{verbatim}
+    0 3 * * * docker-compose -f /opt/volebni_kalkulacka/production.yml run 
+    --rm django python manage.py initial_import
+\end{verbatim}
+kde \texttt{/opt/volebni\_kalkulacka/production.yml} bude odpovídat skutečnému umístění na serveru. V příkazu figuruje \texttt{docker-compose} příkaz, jelikož na produkci je aplikace umístěna v docker kontejnerech a je třeba tuto aktualizaci spustit uvnitř jednoho z nich. 
 
 \subsection{Kalkulačka shod}
 U každého hlasování může uživatel sám hlasovat. K tomuto účelu slouží malý modul po straně, kde si uživatel může vybrat ze tří možností. Pro, proti a zdržet se. Může také svoji volbu zrušit. Vše je patrné z obrázku \ref{fig:aplikace-hlasovani}.
@@ -619,7 +626,7 @@ U každého hlasování může uživatel sám hlasovat. K tomuto účelu slouž�
     \label{fig:aplikace-kalkulacka}
 \end{figure}
 
-\par Vyhodnocení shod probíhá v cyklu pro všechna období. Pro shodu s poslanci je použit SQL dotaz, kteý nejprve vyhledá všechny dvojice \texttt{matches}, \texttt{id\_poslanec}, kde id\_poslanec je unikátní identifikátor poslance a sloupeček matches uchovává počet jeho shodných hlasování s uživatelem. Tyto informace jsou poté ve druhém databázovém dotazu spojeny do jedné tabulky spolu s daty o jednotlivých poslancích a jejich zařazení ve stranách v zadaném volebním období. Výsledkem je pole trojic \texttt{match\_ratio}, \texttt{id\_poslanec}, \texttt{zkratka}, kde match\_ratio je poměr shod poslance s uživatelem a zkratka je zkratka jeho strany, který je poté zobrazen v kalkulačce.
+\par Vyhodnocení shod probíhá v cyklu pro všechna období. Pro shodu s poslanci je použit SQL dotaz, který nejprve vyhledá všechny dvojice \texttt{matches}, \texttt{id\_poslanec}, kde id\_poslanec je unikátní identifikátor poslance a sloupeček matches uchovává počet jeho shodných hlasování s uživatelem. Tyto informace jsou poté ve druhém databázovém dotazu spojeny do jedné tabulky spolu s daty o jednotlivých poslancích a jejich zařazení ve stranách v zadaném volebním období. Výsledkem je pole trojic \texttt{match\_ratio}, \texttt{id\_poslanec}, \texttt{zkratka}, kde match\_ratio je poměr shod poslance s uživatelem a zkratka je zkratka jeho strany, který je poté zobrazen v kalkulačce.
 
 \begin{lstlisting}[language=SQL, caption={SQL dotaz na vyhledání shod uživatele s poslanci}, label=code:sql-shoda-poslanci]
 
@@ -715,6 +722,22 @@ ORDER
     BY match_ratio DESC
 \end{lstlisting}
 
+
+\subsection{Monitoring komentářů}
+Umožnění uživatelům přidávat obsah s sebou vždy nese rizika. V případě citlivých témat, jako je politika, jsou tato rizika násobně větší. Bylo proto třeba zavést určitá opatření pro umožnění alespoň částečné správy uživatelského obsahu. 
+\par Konkrétně byl přidán jednoduchý detektor vulgarit, kde se na základě seznamu sprostých slov převzatého ze stránky wiktionary.org\cite{wiktionary-vulgarity} vyhodnotí jejich přítomnost v přidávaném komentáři a je zasláno upozornění do emailových schránek administrátorů. Ti poté můžou rychlým zákrokem komentář smazat a zabránit tak šíření závadného obsahu. Jak vypadá takové upozornění lze vidět na obrázku \ref{fig:aplikace-komentar}
+\par Tento způsob kontroly a správy byl zvolen z důvodu, že v případě například pouze blokování závadných slov by si kreativní uživatelé rychle uvědomili která slova algoritmus vyhodnotí jako závadná a našli si jiná, která by byla stejně vulgární, ale nedetekovaná. V případě povolení přidání všech komentářů a až dodatečné kontroly nemá běžný uživatel vůbec ponětí o detekci vulgarismů a nemá proto tendenci vymýšlet způsoby jak algoritmy obejít.
+
+\par Tato kontrola může být v budoucnu dále rozšířena například na detekci odkazů na závadné internetové stránky, či blokování spamu.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\textwidth]{obrazky-figures/aplikace-komentar.png}
+    \caption{Email administrátorům s upozorněním na závadný obsah komentáře}
+    \label{fig:aplikace-komentar}
+\end{figure}
+
+
 \chapter{Testování}
 \label{chap:testovani}
 Aby bylo možné aplikaci testovat, bylo nejprve nutné nasadit ji do produkčního prostředí a zpřístupnit uživatelům. K tomuto účelu jsem využil vlastní pronajatý VPS na Digitalocean.com. Aby uživatelé na nichž bude testování prováděno nemuseli psát do prohlížeče IP adresu, nasměroval jsem zde svoji doménu tomasmajerech.cz. 
@@ -778,12 +801,64 @@ Kombinace dotazníku a odkazu na produkční aplikaci umožňuje rychle a efekti
     \item Kdybyste mohl/a něco změnit, co by to bylo?
 \end{enumerate}
 
+Dotazník byl osobně zaslán několika lidem a umístěn na FIT Discord server, nicméně nutnost postupovat podle úkolů v něm většinu lidí odradila od jeho vyplnění. \\
+
+\par Celkem dotazník vyplnilo 17 lidí. Z nich 6 použilo k návštěvě webu mobilní telefon, viz graf na obrázku \ref{fig:dotaznik-mobil}. 
 
 
+\begin{figure}[!tbp]
+  \centering
+  \begin{minipage}[b]{0.45\textwidth}
+    \includegraphics[width=\textwidth]{obrazky-figures/dotaznik-mobil.png}
+    \caption{Statistika použití mobilního telefonu v dotazníku.}
+    \label{fig:dotaznik-mobil}
+  \end{minipage}
+  \hfill
+  \begin{minipage}[b]{0.45\textwidth}
+    \includegraphics[width=\textwidth]{obrazky-figures/dotaznik-vsechno.png}
+    \caption{Statistika zvládnutí všech otázek v dotazníku.}
+    \label{fig:dotaznik-vsechno}
+  \end{minipage}
+\end{figure}
+
+\par Většina, tvořená 10 uživateli, dokázala zvládnout všechny úkoly, viz \ref{fig:dotaznik-vsechno}. Z uživatelů s komplikacemi byli 4, kteří označili za blokující úkol č. 7, kde však kvůli chybně skrytému tlačítku nebylo tento úkol možné zpočátku splnit, proto tyto lidi zanedbáme. Dále 5 lidí označilo jako bod záseku úkol číslo 2, nicméně dle navazujících textových odpovědí nebyla komplikace v nemožnosti bod splnit, ale v nechuti testovacích subjektů se do aplikace registrovat. Dle textových odpovědí by 3 uživatelé rádi zrychlili sekci Hlasování. Jedna z odpovědí je poměrně rozsáhlejší a upozorňuje na povinnost přidávat při registraci profilový obrázek a na nemožnost vyhledávání podle data či textu v sekci Hlasování, viz \ref{fig:dotaznik-zmeny}. Celkově uživatelé většinou hodnotí aplikaci nadprůměrně, viz \ref{fig:dotaznik-hodnoceni}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{obrazky-figures/dotaznik-hodnoceni.png}
+    \caption{Statistika hodnocení aplikace}
+    \label{fig:dotaznik-hodnoceni}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\textwidth]{obrazky-figures/dotaznik-zmeny.png}
+    \caption{Některé ze zajímavějších odpovědí v dotazníku k otázce co by uživatelé změnili}
+    \label{fig:dotaznik-zmeny}
+\end{figure}
 
 \subsection{Závěry z testování} 
-Na základě získaných informací bylo upraveno následující. Směřování tlačítka k vyzkoušení kalkulačky na úvodní straně bylo změněno ze sekce Hlasování na stránku O nás. Zde byl přidán podrobnější popis jednotlivých sekcí. Také byl přidán odkaz na výsledky přímo do hlasovacího modulu. 
+Na základě výsledků testů produkční aplikace byly provedeny následující úpravy: 
+\begin{itemize}
+    \item Výsledky kalkulačky byly přesunuty z uživatelského profilu do samostatné stránky s odkazem z hlavního menu. Díky tomu již nebude uživatel muset přemýšlet, kde má výsledky hledat. \item Tlačítko kalkulačky na úvodní straně nově odkazuje do sekce O nás, kde je použití kalkulačky vysvětleno, místo přechodu přímo na sekci Hlasování.
+    \item V sekci O nás byla funkce kalkulačky důkladněji popsána.
+    \item Načítání sekce Hlasování bylo zrychleno
+    \item Byla odstraněna povinnost při registraci nahrávat profilový obrázek
+    \item Bylo přidáno vyhledávání podle data a textu v názvu do sekce Hlasování. Vyhledání se uživateli zobrazí kliknutím na ikonu filtru. Na obrázku \ref{fig:aplikace-filter} je vyhledávací modul v otevřeném stavu.
+\end{itemize}
 
 
-\chapter{Závěr (1 strana)}
+\begin{figure}
+    \centering
+    \includegraphics[width=1\textwidth]{obrazky-figures/aplikace-filter.png}
+    \caption{Filtr hlasování přidaný na základě zpětné vazby}
+    \label{fig:aplikace-filter}
+\end{figure}
+
+\chapter{Závěr}
 \label{chap:zaver}
+
+Cílem této práce bylo navrhnout a implementovat jednoduchý a efektivní nástroj, díky kterému si každý bude moci jednoduše porovnat svoje politické názory se skutečnými názory současných či bývalých členů Poslanecké sněmovny a který zároveň bude co nejvíce automatizován, aby úplně vymizela, či byla minimalizována nutnost do aplikace zasahovat.
+\par V teoretické části byly rozebrány základní pojmy nutné pro pochopení fungování Poslanecké sněmovny a legislativního procesu. Následně byla vyjmenována již existující konkurenční řešení a popsán formát dostupných dat na kterých bude práce stavět. Poté jsem se zaměřil na popis použitých technologií. Teoretickou část uzavírá rozsáhlá kapitola o návrhu aplikace, kde popisující jej od určení cílové skupiny a případů užití, přes vytváření modelů návrhů až po jejich skutečnou realizace ve formě grafické předlohy. V závěru návrhové části jsou popsány některé teoretické aspekty důležité pro implementaci, například předpoklady k výběru důležitých hlasování, či zpracování výsledků v kalkulačce.
+\par Na základě teoretické části poté vznikla funkční aplikace, jejíž nejdůležitější implementační detaily jsou popsány v praktické části práce a která by po nasazení na skutečný produkční server, a doplnění potřebného nastavení, měla být schopna samostatného fungování pro veřejnost. Tento předpoklad pramení z výsledků uživatelského testování, na základě kterého byly odstraněny všechny nalezené nedostatky. 
+\par Zůstal zde však velký nevyužitý potenciál pro budoucí rozšíření. Například by bylo možné vylepšit moderování uživatelských komentářů, vylepšit filtrování v sekci Hlasování, přidat nové možnosti pro registrované uživatele - například uživatelský profil a sdílení výsledků aplikace na sociální sítě, které se mi bohužel nepodařilo implementovat. Také by bylo možné přidat uživatelské hodnocení jednotlivých hlasování, podle kterých by mohlo jít následně hlasování řadit a mnoho dalšího. 
