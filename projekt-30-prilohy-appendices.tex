@@ -9,7 +9,7 @@
 Stručný návod jak spustit lokální vývojové prostředí. (psáno na OS Windows)\\
 Další informace je případně možno nalézt také v Cookiecutter-django dokumentaci\footnote{Cookiecutter-django dokumentace \url{https://cookiecutter-django.readthedocs.io/en/latest/developing-locally.html}}
 
-\label{append:instalace-local}
+\label{append:local}
 \begin{enumerate}
     \item Nainstalujte prerekvizity\\
     Je třeba si nainstalovat všechny potřebné aplikace - python3, git, postgreSQL databázi a Mailhog\footnote{Mailhog: \url{https://github.com/mailhog/MailHog}}. 
@@ -78,7 +78,7 @@ Další informace je případně možno nalézt také v Cookiecutter-django doku
     Je třeba spustit stažený mailhog \texttt{.exe} soubor, který v příkazové řádce spustí lokální emailový server. Příkazový řádek je třeba nechat otevřený po dobu využívání emailů, jelikož nemá žádnou paměť a po vypnutí ztratí všechny zachycené emaily. Po zapnutí naleznete rozhraní emailového klienta na adrese \texttt{http://localhost:8025/}
     
     \item Vytvořte administračního uživatele.\\
-    Například pro možnost mazat závadné komentáře je třeba vytvořit tzv. \texttt{super uživatele}. K tomu slouží příkaz
+    Například pro možnost mazat závadné komentáře je třeba vytvořit tzv. \texttt{super\\ uživatele}. K tomu slouží příkaz
 
     \texttt{\$ python3 manage.py createsuperuser}
 
@@ -91,27 +91,108 @@ Další informace je případně možno nalézt také v Cookiecutter-django doku
 
 
 \section{Produkční prostředí}
-\label{append:instalace-production}
+\label{append:produkce}
 Další informace je možné opět nalézt v dokumentaci pro Cookiecutter-django\footnote{Cookiecutter-django produkční nastavení: \url{https://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html}}
 
 \begin{enumerate}
     \item Instalace prerekvizit\\
     Je třeba nainstalovat Python3, Git, Docker\footnote{Docker instalace: \url{https://docs.docker.com/get-docker/}}, Docker-compose\footnote{Docker-compose instalace: \url{https://docs.docker.com/compose/install/}}
     
-    \item 
+    \item Naklonování repozitáře\\
+    Ve vybraném adresáři proveďte příkaz
+    
+    \texttt{\$ git clone https://github.com/tmajerech/volebni\_kalkulacka.git}
+    
+    kterým naklonujete všechny soubory z githubu do nové složky \texttt{volebni\_kalkulacka} v aktuálním adresáři.
+    
+    \item Přidání enviromentálních proměnných pro django\\
+    Po přechodu do kořenového adresáře \texttt{volebni\_kalkulacka} je třeba ve složce \texttt{.envs} vytvořit složku \texttt{.production} a v ní soubor \texttt{.django}. Do něj je vložte následující proměnné
+    \begin{verbatim}
+# General
+# ----------------------------------------------------------------
+
+DJANGO_SETTINGS_MODULE=config.settings.production
+DJANGO_SECRET_KEY=
+DJANGO_ADMIN_URL=admin
+DJANGO_ALLOWED_HOSTS=[]
+
+# Security
+# -----------------------------------------------------------------
+# TIP: better off using DNS, however, redirect is OK too
+DJANGO_SECURE_SSL_REDIRECT=False
+
+# Email
+# -----------------------------------------------------------------
+DJANGO_SERVER_EMAIL=
+DJANGO_EMAIL_HOST_USER=
+DJANGO_EMAIL_HOST_PASSWORD=
+
+# django-allauth
+# -----------------------------------------------------------------
+DJANGO_ACCOUNT_ALLOW_REGISTRATION=True
+
+# Gunicorn
+# -----------------------------------------------------------------
+WEB_CONCURRENCY=4
+
+# Redis
+# -----------------------------------------------------------------
+REDIS_URL=redis://redis:6379/0
+    \end{verbatim}
+    
+    
+a doplňte všechny chybějící proměnné. Do \texttt{DJANGO\_ALLOWED\_HOSTS} přijde název produkční domény, případně také její IP adresa a další povolené a url. Nastavení emailu je možné simulovat například přes osobní gmail účet s povoleným připojením třetích stran.
+
+\item Přidání enviromentálních proměnných pro postgreSQL\\
+Opět ve složce \texttt{.production} je třeba vytvořit soubor \texttt{.postgres} a do něj vložit
+
+\begin{verbatim}
+# PostgreSQL
+# ------------------------------------------------------------------
+POSTGRES_HOST=postgres
+POSTGRES_PORT=5432
+POSTGRES_DB=volebni_kalkulacka
+POSTGRES_USER=vjZtIkTyKgMaZGLVWHVLySsLllRCbGVx
+POSTGRES_PASSWORD=
+    LGpkCqeeUrvzvonMonlgeSa11EBqxOM8IAZpyzNuDb7exKxrIVZZLqkYDGTtH15s
+\end{verbatim}
+
+kde text za proměnnou \texttt{POSTGRES\_PASSWORD} bude na jednom řádku, zde je na samostatném kvůli šířce stránky. Tyto údaje byly vygenerovány při vytváření šablony aplikace v Cookiecutter-django a mělo by je jít kdykoliv nahradit novými údaji korespondujícími s nastavením postgreSQL kontejneru.
+
+
+\item Nastavení SSL\\
+SSL, neboli \texttt{Secure Sockets Layer} (vrstva bezpečných socketů) je bezpečnostní standard pro vytváření šifrovaného spojení mezi serverem a klientem, v našem případě konkrétně mezi webovým serverem (stránkou) a prohlížečem. Nemít HTTPS znamená, že je možné z komunikace odposlechnout například přihlašovací údaje \cite{cookiecutter-ssl}.
+\\
+
+V této aplikaci SSL zajišťuje služba Traefik. Mně se bohužel nepodařilo tuto službu spustit, protože jsem ji odkládal až úplně nakonec, ale nemělo by to být složité. Postupujte podle Cookiecutter-django manuálu\footnote{Cookiecutter-django SSL manuál: \url{https://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html}}
+
+\item Sestavení docker kontejnerů\\
+V kořenovém adresáři aplikace spusťte příkaz
+
+\texttt{\$ docker-compose -f production.yml build}
+
+kterým se sestaví všechny potřebné docker kontejnery. Příkazem
+
+\texttt{\$ docker ps -a}
+
+lze zobrazit všechny vytvořené kontejnery včetně neaktivních.
+
+\item Spuštění aplikace\\
+Opět v kořenovém adresáři spusťte příkaz
+
+\texttt{\$ docker-compose -f production.yml up}
+
+kterým by se měly spustit všechny potřebné docker kontejnery a aplikace by měla sama začít poslouchat na portu 80 pro http a 443 pro https.
+
+\item Naimportujte data\\
+Spusťte příkazem 
+
+\texttt{\$ docker-compose -f production.yml\\ 
+        run --rm django python manage.py initial\_import }
+
+import dat do databáze. Poté nastavte cron, který bude tento příkaz spouštět pravidelně v noci. Tato funkce je náročná na výkon serveru, takže doporučuji spouštět když nebude server zatížený. Vzor nastavení cronu můžete převzít z kapitoly \ref{import_dat}.
+    
 \end{enumerate}
 
+Pokud tuto práci někdo bude dále rozšiřovat a narazí v průběhu na nečekané komplikace, může mě kontaktovat a jsem ochoten, pokud to bude v mých silách, pomoct s nastavením a pochopením.
 
-
-
-
-
-
-\chapter{Databázový diagram}
-
-\begin{sidewaysfigure}
-    \centering
-    \includegraphics[width=1\textwidth]{obrazky-figures/model-diagram.png}
-    \caption{Box plot of number of positions sent per iteration using this scheme}
-    \label{fig:awesome_image}
-\end{sidewaysfigure}
